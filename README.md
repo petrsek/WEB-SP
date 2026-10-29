@@ -1,1 +1,29 @@
-# WEB-SP
+# Flavorly
+
+Flavorly is a PHP/Twig restaurant menu and food-rating web application. It uses
+Bootstrap for the responsive UI, MariaDB for persistence, and `fetch()` AJAX
+requests for authentication, ratings, menu management, rating moderation, and
+role administration.
+
+## Run locally
+
+```bash
+docker compose up --build
+```
+
+Open [http://localhost](http://localhost). The database schema and sample menu
+are created automatically on the first request.
+
+## Demo accounts
+
+All demo accounts use the password shown below:
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Superadmin | superadmin@flavorly.test | superadmin |
+| Admin | admin@flavorly.test | admin |
+| Manager | manager@flavorly.test | manager |
+
+Visitors can register as Consumers. Consumers can submit one editable rating
+per dish; Managers can add, edit, remove dishes and moderate ratings; Admins
+can inspect users, foods, and ratings; Superadmins can change user roles.

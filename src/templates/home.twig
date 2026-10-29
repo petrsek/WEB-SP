@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flavorly | Taste what people love</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#24221f; --cream:#f8f6f1; --orange:#e36b3d; --sage:#dce7dc; }
+    body { background:var(--cream); color:var(--ink); font-family:"DM Sans",sans-serif; }
+    h1,h2,h3,.brand { font-family:"Playfair Display",serif; }
+    .navbar { background:#fff; border-bottom:1px solid #ebe7df; }
+    .brand { color:var(--ink); font-size:1.55rem; text-decoration:none; }
+    .brand span { color:var(--orange); }
+    .hero { background:var(--sage); border-radius:1.5rem; min-height:340px; overflow:hidden; }
+    .hero-copy { max-width:540px; }
+    .hero-art { font-size:10rem; filter:drop-shadow(0 18px 12px rgba(0,0,0,.1)); }
+    .food-card { border:0; border-radius:1rem; overflow:hidden; box-shadow:0 6px 24px rgba(36,34,31,.06); height:100%; }
+    .food-card img { height:190px; object-fit:cover; }
+    .rating { color:#e36b3d; letter-spacing:1px; }
+    .btn-primary { --bs-btn-bg:var(--orange); --bs-btn-border-color:var(--orange); --bs-btn-hover-bg:#c7552c; --bs-btn-hover-border-color:#c7552c; }
+    .badge-soft { background:#f9e3d9; color:#a8411e; }
+    .modal-content, .table-responsive { border:0; border-radius:1rem; }
+    .section-label { color:var(--orange); font-weight:700; letter-spacing:.12em; text-transform:uppercase; font-size:.75rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container py-2">
+    <a class="brand" href="./">flavor<span>ly</span></a>
+    <div class="d-flex align-items-center gap-3">
+      {% if user %}
+        <span class="small text-muted d-none d-md-inline">Hi, {{ user.name }}</span>
+        <span class="badge badge-soft text-capitalize">{{ user.role }}</span>
+        <button class="btn btn-sm btn-outline-dark ajax-action" data-action="logout">Sign out</button>
+      {% else %}
+        <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#authModal">Sign in</button>
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#authModal" data-mode="register">Join flavorly</button>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+<main class="container py-4 py-lg-5">
+  <section class="hero row align-items-center p-4 p-md-5 mb-5">
+    <div class="col-lg-7 hero-copy">
+      <div class="section-label mb-3">Good food. Honest opinions.</div>
+      <h1 class="display-4 mb-3">Find your next favorite dish.</h1>
+      <p class="lead mb-4">Explore the menu, see what the community thinks, and share your own taste.</p>
+      <a href="#menu" class="btn btn-primary px-4">Explore the menu</a>
+    </div>
+    <div class="col-lg-5 text-center hero-art" aria-hidden="true">🍝</div>
+  </section>
+
+  <section id="menu" class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div><div class="section-label">From our kitchen</div><h2 class="mb-0">Today's menu</h2></div>
+      {% if user and user.role == 'manager' %}<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#foodModal">+ Add food</button>{% endif %}
+    </div>
+    <div class="row g-4">
+      {% for food in foods %}
+      <div class="col-md-6 col-lg-4">
+        <article class="card food-card">
+          <img src="{{ food.image_url ?: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=800' }}" alt="{{ food.name }}" loading="lazy">
+          <div class="card-body d-flex flex-column p-4">
+            <div class="d-flex justify-content-between gap-2"><span class="badge badge-soft mb-2">{{ food.category }}</span><span class="small text-muted">€{{ food.price|number_format(2) }}</span></div>
+            <h3 class="h4">{{ food.name }}</h3><p class="text-muted small flex-grow-1">{{ food.description }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="rating">★★★★★ <small class="text-muted">({{ food.rating_count }})</small></span>
+              <strong>{{ food.average_rating ?: '—' }}<small class="text-muted"> / 5</small></strong>
+            </div>
+            {% if user and user.role == 'consumer' %}
+              <button class="btn btn-sm btn-outline-dark mt-3" data-bs-toggle="modal" data-bs-target="#ratingModal" data-food-id="{{ food.id }}" data-food-name="{{ food.name }}">Rate this dish</button>
+            {% endif %}
+            {% if user and user.role == 'manager' %}
+              <div class="d-flex gap-2 mt-3"><button class="btn btn-sm btn-outline-dark flex-grow-1 edit-food" data-bs-toggle="modal" data-bs-target="#foodModal" data-food-id="{{ food.id }}" data-food-name="{{ food.name }}" data-food-description="{{ food.description }}" data-food-category="{{ food.category }}" data-food-price="{{ food.price }}" data-food-image="{{ food.image_url }}">Edit</button><button class="btn btn-sm btn-outline-danger ajax-action" data-action="food-delete" data-food-id="{{ food.id }}">Remove</button></div>
+            {% endif %}
+          </div>
+        </article>
+      </div>
+      {% else %}<p class="text-muted">The menu is being prepared.</p>{% endfor %}
+    </div>
+  </section>
+
+  {% if user and user.role in ['manager', 'admin', 'superadmin'] %}
+  <section class="mb-5">
+    <div class="section-label">Back office</div><h2 class="mb-4">Manage the community</h2>
+    <div class="table-responsive bg-white shadow-sm">
+      <table class="table align-middle mb-0"><thead><tr><th>Dish</th><th>From</th><th>Score</th><th>Comment</th><th></th></tr></thead><tbody>
+      {% for rating in ratings %}<tr><td>{{ rating.food_name }}</td><td>{{ rating.user_name }}</td><td><span class="rating">{{ rating.score }}/5</span></td><td>{{ rating.comment ?: '—' }}</td><td>{% if user.role in ['manager','admin'] %}<button class="btn btn-sm btn-link text-danger ajax-action" data-action="rating-delete" data-rating-id="{{ rating.id }}">Remove</button>{% endif %}</td></tr>{% else %}<tr><td colspan="5" class="text-muted">No ratings yet.</td></tr>{% endfor %}
+      </tbody></table>
+    </div>
+  </section>
+  {% endif %}
+  {% if user and user.role in ['admin', 'superadmin'] %}
+  <section class="mb-5"><div class="section-label">Administration</div><h2 class="mb-4">Users</h2><div class="table-responsive bg-white shadow-sm"><table class="table align-middle mb-0"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>
+    {% for member in users %}<tr><td>{{ member.name }}</td><td>{{ member.email }}</td><td>{% if user.role == 'superadmin' %}<select class="form-select form-select-sm user-role" data-user-id="{{ member.id }}">{% for role in ['consumer','manager','admin','superadmin'] %}<option {% if role == member.role %}selected{% endif %}>{{ role }}</option>{% endfor %}</select>{% else %}<span class="text-capitalize">{{ member.role }}</span>{% endif %}</td><td class="small text-muted">{{ member.created_at|date('M j, Y') }}</td></tr>{% endfor %}
+  </tbody></table></div></section>
+  {% endif %}
+</main>
+<div class="toast-container position-fixed bottom-0 end-0 p-3"><div id="toast" class="toast"><div class="toast-body"></div></div></div>
+
+<div class="modal fade" id="authModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h2 id="authTitle">Welcome back</h2><p class="text-muted">Sign in to share your taste.</p><form id="authForm"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="mode" value="login"><div id="nameField" class="mb-3 d-none"><label class="form-label">Name</label><input class="form-control" name="name"></div><div class="mb-3"><label class="form-label">Email</label><input class="form-control" type="email" name="email" required></div><div class="mb-3"><label class="form-label">Password</label><input class="form-control" type="password" name="password" minlength="6" required></div><div id="authError" class="alert alert-danger d-none"></div><button class="btn btn-primary w-100">Continue</button></form><button id="switchAuth" class="btn btn-link w-100 mt-2">New here? Create an account</button></div></div></div></div>
+{% if user and user.role == 'consumer' %}<div class="modal fade" id="ratingModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h2>Rate <span id="ratingFoodName"></span></h2><form id="ratingForm"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="food_id"><label class="form-label">Your score</label><select class="form-select mb-3" name="score" required><option value="">Choose a score</option><option value="5">5 — Loved it</option><option value="4">4 — Really good</option><option value="3">3 — It was okay</option><option value="2">2 — Not for me</option><option value="1">1 — Disappointing</option></select><label class="form-label">Comment <span class="text-muted">(optional)</span></label><textarea class="form-control mb-3" name="comment" rows="3" maxlength="500"></textarea><button class="btn btn-primary w-100">Save rating</button></form></div></div></div></div>{% endif %}
+{% if user and user.role == 'manager' %}<div class="modal fade" id="foodModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h2>Add a dish</h2><form id="foodForm"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="food_id"><div class="mb-2"><label class="form-label">Name</label><input class="form-control" name="name" required></div><div class="mb-2"><label class="form-label">Description</label><textarea class="form-control" name="description" required></textarea></div><div class="row"><div class="col-7 mb-2"><label class="form-label">Category</label><input class="form-control" name="category" required></div><div class="col-5 mb-2"><label class="form-label">Price</label><input class="form-control" name="price" type="number" step=".01" min=".01" required></div></div><div class="mb-3"><label class="form-label">Image URL <span class="text-muted">(optional)</span></label><input class="form-control" name="image_url" type="url"></div><button class="btn btn-primary w-100">Save dish</button></form></div></div></div></div>{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const csrf = '{{ csrf }}';
+const toast = (message, error = false) => { const el = document.getElementById('toast'); el.querySelector('.toast-body').textContent = message; el.classList.toggle('text-bg-danger', error); bootstrap.Toast.getOrCreateInstance(el).show(); };
+const send = async (action, data) => { const body = new URLSearchParams(data); body.set('csrf', csrf); const response = await fetch('?action=' + action, {method:'POST', body}); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Something went wrong.'); return result; };
+document.querySelectorAll('.ajax-action').forEach(button => button.addEventListener('click', async () => { try { const data = {...button.dataset}; delete data.action; await send(button.dataset.action, data); location.reload(); } catch (error) { toast(error.message, true); } }));
+document.querySelectorAll('[data-mode="register"]').forEach(button => button.addEventListener('click', () => document.getElementById('switchAuth').click()));
+document.getElementById('switchAuth')?.addEventListener('click', () => { const form = document.getElementById('authForm'); const register = form.mode.value === 'login'; form.mode.value = register ? 'register' : 'login'; document.getElementById('authTitle').textContent = register ? 'Join flavorly' : 'Welcome back'; document.getElementById('nameField').classList.toggle('d-none', !register); document.getElementById('switchAuth').textContent = register ? 'Already have an account? Sign in' : 'New here? Create an account'; });
+document.getElementById('authForm')?.addEventListener('submit', async event => { event.preventDefault(); const form = event.target; try { const result = await send(form.mode.value, Object.fromEntries(new FormData(form))); location.href = result.redirect; } catch (error) { const el = document.getElementById('authError'); el.textContent = error.message; el.classList.remove('d-none'); } });
+document.getElementById('ratingModal')?.addEventListener('show.bs.modal', event => { const button = event.relatedTarget; document.querySelector('#ratingForm [name=food_id]').value = button.dataset.foodId; document.getElementById('ratingFoodName').textContent = button.dataset.foodName; });
+document.getElementById('ratingForm')?.addEventListener('submit', async event => { event.preventDefault(); try { const result = await send('rate', Object.fromEntries(new FormData(event.target))); toast(result.message); setTimeout(() => location.reload(), 700); } catch (error) { toast(error.message, true); } });
+document.getElementById('foodForm')?.addEventListener('submit', async event => { event.preventDefault(); try { const result = await send('food-save', Object.fromEntries(new FormData(event.target))); toast(result.message); setTimeout(() => location.reload(), 700); } catch (error) { toast(error.message, true); } });
+document.getElementById('foodModal')?.addEventListener('show.bs.modal', event => { const button = event.relatedTarget; const form = document.getElementById('foodForm'); form.reset(); form.food_id.value = button?.dataset.foodId || ''; if (button?.classList.contains('edit-food')) { form.name.value = button.dataset.foodName; form.description.value = button.dataset.foodDescription; form.category.value = button.dataset.foodCategory; form.price.value = button.dataset.foodPrice; form.image_url.value = button.dataset.foodImage; document.querySelector('#foodModal h2').textContent = 'Edit dish'; } else { document.querySelector('#foodModal h2').textContent = 'Add a dish'; } });
+document.querySelectorAll('.user-role').forEach(select => select.addEventListener('change', async () => { try { const result = await send('user-role', {user_id:select.dataset.userId, role:select.value}); toast(result.message); } catch (error) { toast(error.message, true); } }));
+</script>
+</body>
+</html>
