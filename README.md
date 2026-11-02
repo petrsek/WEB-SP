@@ -20,9 +20,9 @@ All demo accounts use the password shown below:
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Superadmin | superadmin@flavorly.test | superadmin |
-| Admin | admin@flavorly.test | admin |
-| Manager | manager@flavorly.test | manager |
+| Superadmin | superadmin@flavourtown.test | superadmin |
+| Admin | admin@flavourtown.test | admin |
+| Manager | manager@flavourtown.test | manager |
 
 Visitors can register as Consumers. Consumers can submit one editable rating
 per dish; Managers can add, edit, remove dishes and moderate ratings; Admins
