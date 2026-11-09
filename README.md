@@ -1,11 +1,12 @@
-# Flavorly
+# Flavour Town
 
-Flavorly is a PHP/Twig restaurant menu and food-rating web application. It uses
+Flavour Town is a PHP/Twig restaurant menu and food-rating web application. It uses
 Bootstrap for the responsive UI, MariaDB for persistence, and `fetch()` AJAX
 requests for authentication, ratings, menu management, rating moderation, and
 role administration.
 
 ## Run locally
+create db/password.txt file, which must contain only the password for the database
 
 ```bash
 docker compose up --build
@@ -21,7 +22,7 @@ All demo accounts use the password shown below:
 | Role | Email | Password |
 | --- | --- | --- |
 | Superadmin | superadmin@flavourtown.test | superadmin |
-| Admin | admin@flavourtown.test | admin |
+| Admin | admin@flavourtown.test | adminadmin |
 | Manager | manager@flavourtown.test | manager |
 
 Visitors can register as Consumers. Consumers can submit one editable rating

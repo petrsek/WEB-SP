@@ -85,7 +85,7 @@ final class Database
             $insert = $this->pdo->prepare('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)');
             foreach ([
                 ['Super Admin', 'superadmin@flavourtown.test', 'superadmin', 'superadmin'],
-                ['Restaurant Admin', 'admin@flavourtown.test', 'admin', 'admin'],
+                ['Restaurant Admin', 'admin@flavourtown.test', 'adminadmin', 'admin'],
                 ['Kitchen Manager', 'manager@flavourtown.test', 'manager', 'manager'],
             ] as $account) {
                 $insert->execute([$account[0], $account[1], password_hash($account[2], PASSWORD_DEFAULT), $account[3]]);
