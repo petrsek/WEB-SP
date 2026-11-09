@@ -10,8 +10,10 @@ use App\Support\Session;
 use RuntimeException;
 use Throwable;
 
+/** Handles AJAX commands and applies request-level authorization. */
 final class ApiController
 {
+    /** Injects services used by all AJAX actions. */
     public function __construct(
         private readonly Session $session,
         private readonly User $users,
@@ -20,9 +22,11 @@ final class ApiController
     ) {
     }
 
+    /** Dispatches an action and returns a JSON success or error response. */
     public function handle(string $action): void
     {
         try {
+            // All mutations share the same CSRF and JSON error handling.
             $this->session->checkCsrf((string) $this->input('csrf'));
             $result = match ($action) {
                 'login' => $this->login(),
@@ -42,6 +46,7 @@ final class ApiController
         }
     }
 
+    /** Authenticates an existing user. */
     private function login(): array
     {
         $user = $this->users->authenticate($this->email(), (string) $this->input('password'));
@@ -49,6 +54,7 @@ final class ApiController
         return ['ok' => true, 'redirect' => './'];
     }
 
+    /** Validates and creates a new consumer account. */
     private function register(): array
     {
         $name = trim((string) $this->input('name'));
@@ -61,12 +67,14 @@ final class ApiController
         return ['ok' => true, 'redirect' => './'];
     }
 
+    /** Clears the authenticated session. */
     private function logout(): array
     {
         $this->session->signOut();
         return ['ok' => true, 'redirect' => './'];
     }
 
+    /** Saves a consumer rating for a food item. */
     private function rate(): array
     {
         $this->requireRole(['consumer']);
@@ -78,6 +86,7 @@ final class ApiController
         return ['ok' => true, 'message' => 'Your rating was saved.'];
     }
 
+    /** Validates and saves a manager's food item changes. */
     private function saveFood(): array
     {
         $this->requireRole(['manager']);
@@ -89,6 +98,7 @@ final class ApiController
         return ['ok' => true, 'message' => 'Menu updated.'];
     }
 
+    /** Deletes a food item after manager authorization. */
     private function deleteFood(): array
     {
         $this->requireRole(['manager']);
@@ -96,6 +106,7 @@ final class ApiController
         return ['ok' => true, 'message' => 'Food removed.'];
     }
 
+    /** Deletes a rating after manager or admin authorization. */
     private function deleteRating(): array
     {
         $this->requireRole(['manager', 'admin']);
@@ -103,6 +114,7 @@ final class ApiController
         return ['ok' => true, 'message' => 'Rating removed.'];
     }
 
+    /** Updates a user role after superadmin authorization. */
     private function updateRole(): array
     {
         $this->requireRole(['superadmin']);
@@ -114,28 +126,35 @@ final class ApiController
         return ['ok' => true, 'message' => 'User role updated.'];
     }
 
+    /** Ensures the current user has one of the required roles. */
     private function requireRole(array $roles): void
     {
         $user = $this->session->user();
+        // Authorization is enforced server-side for every protected action.
         if (!$user || !in_array($user['role'], $roles, true)) {
             throw new RuntimeException('You are not allowed to perform this action.', 403);
         }
     }
 
+    /** Returns a normalized email from the request. */
     private function email(): string
     {
         return strtolower(trim((string) $this->input('email')));
     }
 
+    /** Reads one value from the POST request. */
     private function input(string $key): mixed
     {
         return $_POST[$key] ?? null;
     }
 
+    /** Sends a JSON response and stops further page rendering. */
     private function respond(array $payload, int $status = 200): never
     {
         http_response_code($status);
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
         echo json_encode($payload);
+        // Prevent the normal HTML controller from appending to the JSON body.
+        exit;
     }
 }

@@ -1,0 +1,6 @@
+{% extends "base.twig" %}
+{% block title %}Rate {{ food.name }} | Flavour Town{% endblock %}
+{% block content %}
+<a href="?page=food&id={{ food.id }}" class="text-decoration-none text-muted">← Back to dish</a>
+<div class="row justify-content-center mt-4"><div class="col-lg-7"><div class="bg-white rounded-4 shadow-sm p-4 p-md-5"><div class="section-label">Your opinion</div><h1>{{ rating ? 'Edit your rating' : 'Rate this dish' }}</h1><p class="text-muted">{{ food.name }}</p><form class="ajax-form" data-action="rate"><input type="hidden" name="food_id" value="{{ food.id }}"><label class="form-label">Your score</label><select class="form-select mb-3" name="score" required><option value="">Choose a score</option>{% for score, label in {5:'Loved it',4:'Really good',3:'It was okay',2:'Not for me',1:'Disappointing'} %}<option value="{{ score }}" {% if rating and rating.score == score %}selected{% endif %}>{{ score }} — {{ label }}</option>{% endfor %}</select><label class="form-label">Comment <span class="text-muted">(optional)</span></label><textarea class="form-control mb-4" name="comment" maxlength="500" rows="4">{{ rating.comment ?? '' }}</textarea><button class="btn btn-primary">Save rating</button></form></div></div></div>
+{% endblock %}

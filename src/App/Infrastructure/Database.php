@@ -5,16 +5,20 @@ namespace App\Infrastructure;
 
 use PDO;
 
+/** Owns the PDO connection, schema creation, and initial data setup. */
 final class Database
 {
+    /** Configures the injected PDO connection and prepares application data. */
     public function __construct(private readonly PDO $pdo)
     {
+        // Keep database failures visible instead of returning partial responses.
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         $this->createSchema();
         $this->seed();
     }
 
+    /** Creates a database connection from the container environment. */
     public static function fromEnvironment(): self
     {
         $passwordPath = getenv('PASSWORD_FILE_PATH') ?: '/run/secrets/db-password';
@@ -27,11 +31,13 @@ final class Database
         return new self($pdo);
     }
 
+    /** Returns the configured PDO connection for model injection. */
     public function connection(): PDO
     {
         return $this->pdo;
     }
 
+    /** Creates the tables required by the application when they do not exist. */
     private function createSchema(): void
     {
         $this->pdo->exec(
@@ -71,8 +77,10 @@ final class Database
         );
     }
 
+    /** Adds initial demo users and menu items to an empty database. */
     private function seed(): void
     {
+        // Demo records are inserted only into an empty database.
         if ((int) $this->pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() === 0) {
             $insert = $this->pdo->prepare('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)');
             foreach ([
