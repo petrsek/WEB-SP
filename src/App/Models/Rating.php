@@ -71,4 +71,13 @@ final class Rating
         $statement = $this->pdo->prepare('DELETE FROM ratings WHERE id = ?');
         $statement->execute([$id]);
     }
+
+    /** Removes a rating only when it belongs to the given user. */
+    public function deleteForUser(int $id, int $userId): bool
+    {
+        $statement = $this->pdo->prepare('DELETE FROM ratings WHERE id = ? AND user_id = ?');
+        $statement->execute([$id, $userId]);
+
+        return $statement->rowCount() > 0;
+    }
 }

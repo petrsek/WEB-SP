@@ -109,8 +109,18 @@ final class ApiController
     /** Deletes a rating after manager or admin authorization. */
     private function deleteRating(): array
     {
-        $this->requireRole(['manager', 'admin', 'superadmin']);
-        $this->ratings->delete((int) $this->input('rating_id'));
+        $user = $this->requireRole(['consumer', 'manager', 'admin', 'superadmin']);
+        $ratingId = (int) $this->input('rating_id');
+        if ($ratingId < 1) {
+            throw new RuntimeException('Rating was not found.', 404);
+        }
+        if ($user['role'] === 'consumer') {
+            if (!$this->ratings->deleteForUser($ratingId, (int) $user['id'])) {
+                throw new RuntimeException('You can only remove your own ratings.', 403);
+            }
+        } else {
+            $this->ratings->delete($ratingId);
+        }
         return ['ok' => true, 'message' => 'Rating removed.'];
     }
 

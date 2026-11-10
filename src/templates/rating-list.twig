@@ -8,6 +8,12 @@
         <span class="rating">{{ rating.score }}/5</span>
       </div>
       <p class="mb-0 mt-2 text-muted">{{ rating.comment ?: 'No comment.' }}</p>
+      {% if user and (user.id == rating.user_id or user.role in ['manager', 'admin', 'superadmin']) %}
+        <div class="d-flex gap-2 mt-3">
+          {% if user.id == rating.user_id %}<a class="btn btn-sm btn-outline-dark" href="?page=rating&food_id={{ rating.food_id }}">Edit</a>{% endif %}
+          <button class="btn btn-sm btn-outline-danger ajax-action" data-action="rating-delete" data-rating_id="{{ rating.id }}">Remove</button>
+        </div>
+      {% endif %}
     </div>
   {% else %}
     <p class="text-muted">{{ emptyMessage|default('No ratings yet.') }}</p>
