@@ -90,11 +90,32 @@ final class ApiController
     private function saveFood(): array
     {
         $this->requireRole(['manager', 'admin', 'superadmin']);
-        $values = [trim((string) $this->input('name')), trim((string) $this->input('description')), trim((string) $this->input('category')), (float) $this->input('price'), trim((string) $this->input('image_url')) ?: null];
+        $foodId = (int) $this->input('food_id');
+        $existingFood = $foodId > 0 ? $this->foods->findWithRatings($foodId) : null;
+        if ($foodId > 0 && !$existingFood) {
+            throw new RuntimeException('Food was not found.', 404);
+        }
+        $description = $this->sanitizeDescription((string) $this->input('description'));
+        $newImage = $this->uploadImage();
+        $imageUrl = $newImage ?? ($existingFood['image_url'] ?? null);
+        $values = [trim((string) $this->input('name')), $description, trim((string) $this->input('category')), (float) $this->input('price'), $imageUrl];
         if ($values[0] === '' || $values[1] === '' || $values[2] === '' || $values[3] <= 0) {
+            if ($newImage !== null) {
+                $this->removeUploadedImage($newImage);
+            }
             throw new RuntimeException('Name, description, category and a positive price are required.', 422);
         }
-        $this->foods->save((int) $this->input('food_id') ?: null, ...$values);
+        try {
+            $this->foods->save($foodId ?: null, ...$values);
+        } catch (Throwable $exception) {
+            if ($newImage !== null) {
+                $this->removeUploadedImage($newImage);
+            }
+            throw $exception;
+        }
+        if ($newImage !== null && isset($existingFood['image_url'])) {
+            $this->removeUploadedImage((string) $existingFood['image_url']);
+        }
         return ['ok' => true, 'message' => 'Menu updated.'];
     }
 
@@ -176,6 +197,59 @@ final class ApiController
     private function input(string $key): mixed
     {
         return $_POST[$key] ?? null;
+    }
+
+    /** Stores a validated image upload and returns its public relative path. */
+    private function uploadImage(): ?string
+    {
+        $upload = $_FILES['image'] ?? null;
+        if (!is_array($upload) || (int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+        if ((int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file((string) ($upload['tmp_name'] ?? ''))) {
+            throw new RuntimeException('The image upload failed.', 422);
+        }
+        if ((int) ($upload['size'] ?? 0) > 5 * 1024 * 1024) {
+            throw new RuntimeException('Images must be 5 MB or smaller.', 422);
+        }
+        $imageInfo = @getimagesize((string) $upload['tmp_name']);
+        $mime = is_array($imageInfo) ? ($imageInfo['mime'] ?? '') : '';
+        $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+        if (!isset($extensions[$mime])) {
+            throw new RuntimeException('Only JPEG, PNG, GIF and WebP images are allowed.', 422);
+        }
+
+        $directory = __DIR__ . '/../../uploads';
+        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+            throw new RuntimeException('The image upload directory is unavailable.', 500);
+        }
+        $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
+        $path = $directory . '/' . $filename;
+        if (!move_uploaded_file((string) $upload['tmp_name'], $path)) {
+            throw new RuntimeException('The image could not be saved.', 500);
+        }
+
+        return 'uploads/' . $filename;
+    }
+
+    /** Removes a locally stored uploaded image without touching external URLs. */
+    private function removeUploadedImage(string $imageUrl): void
+    {
+        if (!preg_match('/^uploads\/[a-f0-9]{32}\.(jpg|png|gif|webp)$/', $imageUrl)) {
+            return;
+        }
+        $path = __DIR__ . '/../../' . $imageUrl;
+        if (is_file($path) && !unlink($path)) {
+            throw new RuntimeException('The old image could not be removed.', 500);
+        }
+    }
+
+    /** Keeps only the formatting tags supported by the WYSIWYG editor. */
+    private function sanitizeDescription(string $description): string
+    {
+        $description = strip_tags($description, '<p><br><strong><em><u><ol><ul><li><h1><h2><h3><blockquote>');
+
+        return (string) preg_replace('/<(\/?)(p|br|strong|em|u|ol|ul|li|h1|h2|h3|blockquote)(?:\s[^>]*)?>/i', '<$1$2>', $description);
     }
 
     /** Sends a JSON response and stops further page rendering. */

@@ -31,6 +31,10 @@ ratings; Admins can also change consumer/manager roles;
 Superadmins can use all application actions except assigning the superadmin
 role.
 
+Menu descriptions use a WYSIWYG editor. Menu images are uploaded as JPEG, PNG,
+GIF, or WebP files up to 5 MB; uploaded filenames are randomized and replaced
+images are removed automatically.
+
 ## Pages
 
 - `/` - about section and menu overview
