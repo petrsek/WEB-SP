@@ -130,6 +130,9 @@ final class ApiController
         if ($targetRole === null) {
             throw new RuntimeException('User was not found.', 404);
         }
+        if ($targetRole === 'superadmin') {
+            throw new RuntimeException('Superadmin roles cannot be changed.', 403);
+        }
         if ($user['role'] === 'admin' && !in_array($targetRole, ['consumer', 'manager'], true)) {
             throw new RuntimeException('Admins can only change consumer and manager roles.', 403);
         }
