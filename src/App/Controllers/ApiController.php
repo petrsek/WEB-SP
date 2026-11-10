@@ -102,7 +102,11 @@ final class ApiController
     private function deleteFood(): array
     {
         $this->requireRole(['manager', 'superadmin']);
-        $this->foods->delete((int) $this->input('food_id'));
+        $foodId = (int) $this->input('food_id');
+        if ($foodId < 1) {
+            throw new RuntimeException('Food was not found.', 404);
+        }
+        $this->foods->delete($foodId);
         return ['ok' => true, 'message' => 'Food removed.'];
     }
 
