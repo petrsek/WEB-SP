@@ -26,8 +26,8 @@ All demo accounts use the password shown below:
 | Manager | manager@flavourtown.test | manager |
 
 Visitors can register as Consumers. Consumers can submit one editable rating
-per dish; Managers can add, edit, remove dishes and moderate ratings; Admins
-can inspect users, foods, and ratings and change consumer/manager roles;
+per dish; Managers and Admins can add, edit, remove dishes and moderate
+ratings; Admins can also change consumer/manager roles;
 Superadmins can use all application actions except assigning the superadmin
 role.
 

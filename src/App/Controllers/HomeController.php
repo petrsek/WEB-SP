@@ -84,8 +84,8 @@ final class HomeController
     private function foodEdit(int $id): void
     {
         $user = $this->session->user();
-        if (!$user || !in_array($user['role'], ['manager', 'superadmin'], true)) {
-            throw new RuntimeException('Only managers and superadmins can edit menu items.', 403);
+        if (!$user || !in_array($user['role'], ['manager', 'admin', 'superadmin'], true)) {
+            throw new RuntimeException('Only managers, admins and superadmins can edit menu items.', 403);
         }
         $food = $id > 0 ? $this->foods->findWithRatings($id) : null;
         if ($id > 0 && !$food) {

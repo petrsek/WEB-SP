@@ -86,10 +86,10 @@ final class ApiController
         return ['ok' => true, 'message' => 'Your rating was saved.'];
     }
 
-    /** Validates and saves a manager's food item changes. */
+    /** Validates and saves an authorized food item's changes. */
     private function saveFood(): array
     {
-        $this->requireRole(['manager', 'superadmin']);
+        $this->requireRole(['manager', 'admin', 'superadmin']);
         $values = [trim((string) $this->input('name')), trim((string) $this->input('description')), trim((string) $this->input('category')), (float) $this->input('price'), trim((string) $this->input('image_url')) ?: null];
         if ($values[0] === '' || $values[1] === '' || $values[2] === '' || $values[3] <= 0) {
             throw new RuntimeException('Name, description, category and a positive price are required.', 422);
@@ -98,10 +98,10 @@ final class ApiController
         return ['ok' => true, 'message' => 'Menu updated.'];
     }
 
-    /** Deletes a food item after manager authorization. */
+    /** Deletes a food item after food-management authorization. */
     private function deleteFood(): array
     {
-        $this->requireRole(['manager', 'superadmin']);
+        $this->requireRole(['manager', 'admin', 'superadmin']);
         $foodId = (int) $this->input('food_id');
         if ($foodId < 1) {
             throw new RuntimeException('Food was not found.', 404);
