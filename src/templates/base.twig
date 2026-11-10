@@ -32,8 +32,8 @@
       {% if user %}
         <span class="small text-muted d-none d-md-inline">Hi, {{ user.name }}</span>
         <span class="badge badge-soft text-capitalize">{{ user.role }}</span>
+        <a class="btn btn-sm btn-outline-dark" href="?page=ratings">My ratings</a>
         {% if user.role in ['admin', 'superadmin'] %}<a class="btn btn-sm btn-outline-dark" href="?page=users">Users</a>{% endif %}
-        {% if user.role in ['manager', 'superadmin'] %}<a class="btn btn-sm btn-outline-dark" href="?page=food-edit">Add food</a>{% endif %}
         <button class="btn btn-sm btn-outline-dark ajax-action" data-action="logout">Sign out</button>
       {% else %}
         <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#authModal">Sign in</button>

@@ -30,6 +30,7 @@ final class HomeController
             'food' => $this->food($id ?? 0),
             'food-edit' => $this->foodEdit($id ?? 0),
             'rating' => $this->rating($id ?? 0),
+            'ratings' => $this->userRatings(),
             'users' => $this->users(),
             default => $this->index(),
         };
@@ -66,6 +67,17 @@ final class HomeController
             'food' => $food,
             'rating' => $this->ratings->forUserAndFood((int) $user['id'], $foodId),
         ]);
+    }
+
+    /** Renders all ratings authored by the signed-in user. */
+    private function userRatings(): void
+    {
+        $user = $this->session->user();
+        if (!$user) {
+            throw new RuntimeException('You must be signed in to view your ratings.', 403);
+        }
+
+        $this->render('ratings.twig', ['ratings' => $this->ratings->forUser((int) $user['id'])]);
     }
 
     /** Renders the manager form for creating or editing a menu item. */

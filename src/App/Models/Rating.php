@@ -33,6 +33,19 @@ final class Rating
         return $statement->fetchAll();
     }
 
+    /** Returns all ratings authored by one user, including their food names. */
+    public function forUser(int $userId): array
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT r.*, f.name AS food_name, u.name AS user_name FROM ratings r
+             JOIN foods f ON f.id = r.food_id JOIN users u ON u.id = r.user_id
+             WHERE r.user_id = ? ORDER BY r.created_at DESC'
+        );
+        $statement->execute([$userId]);
+
+        return $statement->fetchAll();
+    }
+
     /** Returns the current consumer's rating for a food item, if it exists. */
     public function forUserAndFood(int $userId, int $foodId): ?array
     {

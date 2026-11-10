@@ -36,5 +36,6 @@ role.
 - `/` - about section and menu overview
 - `/?page=food&id=<id>` - menu item details and ratings
 - `/?page=rating&food_id=<id>` - consumer rating form
+- `/?page=ratings` - ratings authored by the signed-in user
 - `/?page=users` - administrator-only user management
 - `/?page=food-edit` - manager or superadmin form for adding a menu item
