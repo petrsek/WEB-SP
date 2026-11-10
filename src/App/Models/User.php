@@ -52,6 +52,16 @@ final class User
         return $this->pdo->query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC')->fetchAll();
     }
 
+    /** Returns the current role for a user, if the user exists. */
+    public function roleOf(int $id): ?string
+    {
+        $statement = $this->pdo->prepare('SELECT role FROM users WHERE id = ?');
+        $statement->execute([$id]);
+        $role = $statement->fetchColumn();
+
+        return $role === false ? null : (string) $role;
+    }
+
     /** Changes the role assigned to a user. */
     public function updateRole(int $id, string $role): void
     {

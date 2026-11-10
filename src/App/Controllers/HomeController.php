@@ -51,12 +51,12 @@ final class HomeController
         $this->render('food.twig', ['food' => $food, 'ratings' => $this->ratings->forFood($id)]);
     }
 
-    /** Renders the create or edit form for a consumer rating. */
+    /** Renders the create or edit form for a user's rating. */
     private function rating(int $foodId): void
     {
         $user = $this->session->user();
-        if (!$user || $user['role'] !== 'consumer') {
-            throw new RuntimeException('Only consumers can edit ratings.', 403);
+        if (!$user || !in_array($user['role'], ['consumer', 'superadmin'], true)) {
+            throw new RuntimeException('Only consumers and superadmins can edit ratings.', 403);
         }
         $food = $this->foods->findWithRatings($foodId);
         if (!$food) {
@@ -68,15 +68,15 @@ final class HomeController
         ]);
     }
 
-    /** Renders the manager form for editing a menu item. */
+    /** Renders the manager form for creating or editing a menu item. */
     private function foodEdit(int $id): void
     {
         $user = $this->session->user();
-        if (!$user || $user['role'] !== 'manager') {
-            throw new RuntimeException('Only managers can edit menu items.', 403);
+        if (!$user || !in_array($user['role'], ['manager', 'superadmin'], true)) {
+            throw new RuntimeException('Only managers and superadmins can edit menu items.', 403);
         }
-        $food = $this->foods->findWithRatings($id);
-        if (!$food) {
+        $food = $id > 0 ? $this->foods->findWithRatings($id) : null;
+        if ($id > 0 && !$food) {
             throw new RuntimeException('Food was not found.', 404);
         }
         $this->render('food-edit.twig', ['food' => $food]);

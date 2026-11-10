@@ -77,7 +77,7 @@ final class ApiController
     /** Saves a consumer rating for a food item. */
     private function rate(): array
     {
-        $this->requireRole(['consumer']);
+        $this->requireRole(['consumer', 'superadmin']);
         $score = (int) $this->input('score');
         if ($score < 1 || $score > 5 || (int) $this->input('food_id') < 1) {
             throw new RuntimeException('Choose a rating from 1 to 5.', 422);
@@ -89,7 +89,7 @@ final class ApiController
     /** Validates and saves a manager's food item changes. */
     private function saveFood(): array
     {
-        $this->requireRole(['manager']);
+        $this->requireRole(['manager', 'superadmin']);
         $values = [trim((string) $this->input('name')), trim((string) $this->input('description')), trim((string) $this->input('category')), (float) $this->input('price'), trim((string) $this->input('image_url')) ?: null];
         if ($values[0] === '' || $values[1] === '' || $values[2] === '' || $values[3] <= 0) {
             throw new RuntimeException('Name, description, category and a positive price are required.', 422);
@@ -101,7 +101,7 @@ final class ApiController
     /** Deletes a food item after manager authorization. */
     private function deleteFood(): array
     {
-        $this->requireRole(['manager']);
+        $this->requireRole(['manager', 'superadmin']);
         $this->foods->delete((int) $this->input('food_id'));
         return ['ok' => true, 'message' => 'Food removed.'];
     }
@@ -109,7 +109,7 @@ final class ApiController
     /** Deletes a rating after manager or admin authorization. */
     private function deleteRating(): array
     {
-        $this->requireRole(['manager', 'admin']);
+        $this->requireRole(['manager', 'admin', 'superadmin']);
         $this->ratings->delete((int) $this->input('rating_id'));
         return ['ok' => true, 'message' => 'Rating removed.'];
     }
@@ -117,23 +117,36 @@ final class ApiController
     /** Updates a user role after superadmin authorization. */
     private function updateRole(): array
     {
-        $this->requireRole(['superadmin']);
+        $user = $this->requireRole(['admin', 'superadmin']);
+        $targetId = (int) $this->input('user_id');
         $role = (string) $this->input('role');
-        if (!in_array($role, ['consumer', 'manager', 'admin', 'superadmin'], true)) {
+        $allowedRoles = $user['role'] === 'superadmin'
+            ? ['consumer', 'manager', 'admin']
+            : ['consumer', 'manager'];
+        if (!in_array($role, $allowedRoles, true)) {
             throw new RuntimeException('Invalid role.', 422);
         }
-        $this->users->updateRole((int) $this->input('user_id'), $role);
+        $targetRole = $this->users->roleOf($targetId);
+        if ($targetRole === null) {
+            throw new RuntimeException('User was not found.', 404);
+        }
+        if ($user['role'] === 'admin' && !in_array($targetRole, ['consumer', 'manager'], true)) {
+            throw new RuntimeException('Admins can only change consumer and manager roles.', 403);
+        }
+        $this->users->updateRole($targetId, $role);
         return ['ok' => true, 'message' => 'User role updated.'];
     }
 
     /** Ensures the current user has one of the required roles. */
-    private function requireRole(array $roles): void
+    private function requireRole(array $roles): array
     {
         $user = $this->session->user();
         // Authorization is enforced server-side for every protected action.
         if (!$user || !in_array($user['role'], $roles, true)) {
             throw new RuntimeException('You are not allowed to perform this action.', 403);
         }
+
+        return $user;
     }
 
     /** Returns a normalized email from the request. */

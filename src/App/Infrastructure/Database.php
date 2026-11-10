@@ -21,11 +21,11 @@ final class Database
     /** Creates a database connection from the container environment. */
     public static function fromEnvironment(): self
     {
-        $passwordPath = getenv('PASSWORD_FILE_PATH') ?: '/run/secrets/db-password';
+        $passwordPath = getenv('PASSWORD_FILE_PATH');
         $password = is_readable($passwordPath) ? trim((string) file_get_contents($passwordPath)) : '';
-        $host = getenv('DB_HOST') ?: '127.0.0.1';
-        $name = getenv('DB_NAME') ?: 'web-sp';
-        $user = getenv('DB_USER') ?: 'root';
+        $host = getenv('DB_HOST');
+        $name = getenv('DB_NAME');
+        $user = getenv('DB_USER');
         $pdo = new PDO("mysql:host={$host};dbname={$name};charset=utf8mb4", $user, $password);
 
         return new self($pdo);

@@ -27,7 +27,9 @@ All demo accounts use the password shown below:
 
 Visitors can register as Consumers. Consumers can submit one editable rating
 per dish; Managers can add, edit, remove dishes and moderate ratings; Admins
-can inspect users, foods, and ratings; Superadmins can change user roles.
+can inspect users, foods, and ratings and change consumer/manager roles;
+Superadmins can use all application actions except assigning the superadmin
+role.
 
 ## Pages
 
@@ -35,3 +37,4 @@ can inspect users, foods, and ratings; Superadmins can change user roles.
 - `/?page=food&id=<id>` - menu item details and ratings
 - `/?page=rating&food_id=<id>` - consumer rating form
 - `/?page=users` - administrator-only user management
+- `/?page=food-edit` - manager or superadmin form for adding a menu item
