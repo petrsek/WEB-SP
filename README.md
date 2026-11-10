@@ -32,8 +32,9 @@ Superadmins can use all application actions except assigning the superadmin
 role.
 
 Menu descriptions use a WYSIWYG editor. Menu images are uploaded as JPEG, PNG,
-GIF, or WebP files up to 5 MB; uploaded filenames are randomized and replaced
-images are removed automatically.
+GIF, or WebP files up to 5 MB; uploaded filenames are randomized, stored
+outside the web root in a persistent Docker volume, and replaced images are
+removed automatically.
 
 ## Pages
 

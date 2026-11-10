@@ -219,7 +219,7 @@ final class ApiController
             throw new RuntimeException('Only JPEG, PNG, GIF and WebP images are allowed.', 422);
         }
 
-        $directory = __DIR__ . '/../../uploads';
+        $directory = $this->uploadsDirectory();
         if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
             throw new RuntimeException('The image upload directory is unavailable.', 500);
         }
@@ -229,19 +229,25 @@ final class ApiController
             throw new RuntimeException('The image could not be saved.', 500);
         }
 
-        return 'uploads/' . $filename;
+        return '?image=' . $filename;
     }
 
     /** Removes a locally stored uploaded image without touching external URLs. */
     private function removeUploadedImage(string $imageUrl): void
     {
-        if (!preg_match('/^uploads\/[a-f0-9]{32}\.(jpg|png|gif|webp)$/', $imageUrl)) {
+        if (!preg_match('/^\?image=([a-f0-9]{32}\.(jpg|png|gif|webp))$/', $imageUrl, $matches)) {
             return;
         }
-        $path = __DIR__ . '/../../' . $imageUrl;
+        $path = $this->uploadsDirectory() . '/' . $matches[1];
         if (is_file($path) && !unlink($path)) {
             throw new RuntimeException('The old image could not be removed.', 500);
         }
+    }
+
+    /** Returns the private persistent upload directory. */
+    private function uploadsDirectory(): string
+    {
+        return rtrim((string) (getenv('UPLOADS_PATH') ?: '/var/lib/flavour-town/uploads'), '/');
     }
 
     /** Keeps only the formatting tags supported by the WYSIWYG editor. */

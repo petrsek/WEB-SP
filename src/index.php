@@ -15,6 +15,24 @@ require __DIR__ . '/vendor/autoload.php';
 
 session_start();
 
+if (isset($_GET['image'])) {
+    $filename = (string) $_GET['image'];
+    if (!preg_match('/^[a-f0-9]{32}\.(jpg|png|gif|webp)$/', $filename)) {
+        http_response_code(404);
+        exit;
+    }
+    $path = rtrim((string) (getenv('UPLOADS_PATH') ?: '/var/lib/flavour-town/uploads'), '/') . '/' . $filename;
+    $imageInfo = is_file($path) ? @getimagesize($path) : false;
+    if (!is_array($imageInfo) || !isset($imageInfo['mime'])) {
+        http_response_code(404);
+        exit;
+    }
+    header('Content-Type: ' . $imageInfo['mime']);
+    header('Cache-Control: public, max-age=31536000, immutable');
+    readfile($path);
+    exit;
+}
+
 // Build shared services once and inject them into controllers and models.
 $database = Database::fromEnvironment();
 $session = new Session();

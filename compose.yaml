@@ -14,6 +14,9 @@ services:
       - DB_HOST=db
       - DB_NAME=web-sp
       - DB_USER=root
+      - UPLOADS_PATH=/var/lib/flavour-town/uploads
+    volumes:
+      - uploads-data:/var/lib/flavour-town/uploads
     develop:
       watch:
         - action: sync
@@ -54,6 +57,7 @@ services:
       - PMA_HOST=db
 volumes:
   db-data:
+  uploads-data:
 secrets:
   db-password:
     file: db/password.txt
