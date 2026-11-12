@@ -5,7 +5,7 @@
     <div class="bg-white rounded-3 p-3 mb-3 shadow-sm">
       <div class="d-flex justify-content-between">
         {% if showFood|default(false) %}<a class="fw-semibold text-decoration-none text-dark" href="?page=food&id={{ rating.food_id }}">{{ rating.food_name }}</a>{% else %}<strong>{{ rating.user_name }}</strong>{% endif %}
-        <span class="rating">{{ rating.score }}/5</span>
+        <span class="rating" aria-label="{{ rating.score }} out of 5 stars">{% for star in 1..5 %}{{ rating.score >= star ? '★' : '☆' }}{% endfor %} {{ rating.score }}/5</span>
       </div>
       {% if rating.is_visible == 1 %}<p class="mb-0 mt-2 text-muted">{{ rating.comment ?: 'No comment.' }}</p>{% else %}<p class="mb-0 mt-2 text-muted fst-italic">Text hidden by moderation.</p>{% endif %}
       {% if user and (user.id == rating.user_id or user.role in ['manager', 'admin', 'superadmin']) %}
