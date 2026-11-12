@@ -66,13 +66,13 @@ CREATE TABLE `ratings` (
 -- Dumping data for table `ratings`
 --
 
-INSERT INTO `ratings` (`id`, `food_id`, `user_id`, `score`, `comment`, `created_at`) VALUES
-(4, 1, 7, 5, 'Soooooo creamy and perfect', '2026-11-12 18:46:14'),
-(5, 2, 7, 1, 'IT HAS MEAT!!! animal killers', '2026-11-12 18:47:48'),
-(6, 3, 7, 5, 'Me likey salat nom nom', '2026-11-12 18:48:15'),
-(7, 1, 6, 4, 'Food tasted really good. Just wish it would be served warmer', '2026-11-12 18:49:32'),
-(8, 2, 6, 3, 'Taste was ok, but why is it sooooo expensive?!', '2026-11-12 18:51:29'),
-(10, 3, 6, 2, '', '2026-11-12 18:51:43');
+INSERT INTO `ratings` (`id`, `food_id`, `user_id`, `score`, `comment`, `is_visible`, `created_at`) VALUES
+(4, 1, 7, 5, 'Soooooo creamy and perfect', 1, '2026-11-12 18:46:14'),
+(5, 2, 7, 1, 'IT HAS MEAT!!! animal killers', 0, '2026-11-12 18:47:48'),
+(6, 3, 7, 5, 'Me likey salat nom nom', 1, '2026-11-12 18:48:15'),
+(7, 1, 6, 4, 'Food tasted really good. Just wish it would be served warmer', 1, '2026-11-12 18:49:32'),
+(8, 2, 6, 3, 'Taste was ok, but why is it sooooo expensive?!', 1, '2026-11-12 18:51:29'),
+(10, 3, 6, 2, '', 1, '2026-11-12 18:51:43');
 
 -- --------------------------------------------------------
 
