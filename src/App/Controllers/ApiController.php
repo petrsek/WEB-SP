@@ -36,6 +36,7 @@ final class ApiController
                 'food-save' => $this->saveFood(),
                 'food-delete' => $this->deleteFood(),
                 'rating-delete' => $this->deleteRating(),
+                'rating-visibility' => $this->setRatingVisibility(),
                 'user-role' => $this->updateRole(),
                 default => throw new RuntimeException('Unknown action.', 404),
             };
@@ -131,7 +132,7 @@ final class ApiController
         return ['ok' => true, 'message' => 'Food removed.'];
     }
 
-    /** Deletes a rating after manager or admin authorization. */
+    /** Deletes a rating by its author or a superadmin. */
     private function deleteRating(): array
     {
         $user = $this->requireRole(['consumer', 'manager', 'admin', 'superadmin']);
@@ -139,7 +140,7 @@ final class ApiController
         if ($ratingId < 1) {
             throw new RuntimeException('Rating was not found.', 404);
         }
-        if ($user['role'] === 'consumer') {
+        if (in_array($user['role'], ['consumer', 'manager', 'admin'], true)) {
             if (!$this->ratings->deleteForUser($ratingId, (int) $user['id'])) {
                 throw new RuntimeException('You can only remove your own ratings.', 403);
             }
@@ -147,6 +148,22 @@ final class ApiController
             $this->ratings->delete($ratingId);
         }
         return ['ok' => true, 'message' => 'Rating removed.'];
+    }
+
+    /** Hides or shows rating text for all viewers. */
+    private function setRatingVisibility(): array
+    {
+        $this->requireRole(['manager', 'admin', 'superadmin']);
+        $ratingId = (int) $this->input('rating_id');
+        if ($ratingId < 1) {
+            throw new RuntimeException('Rating was not found.', 404);
+        }
+        $visible = (string) $this->input('visible') === '1';
+        if (!$this->ratings->setVisibility($ratingId, $visible)) {
+            throw new RuntimeException('Rating was not found.', 404);
+        }
+
+        return ['ok' => true, 'message' => $visible ? 'Rating text shown.' : 'Rating text hidden.'];
     }
 
     /** Updates a user role after superadmin authorization. */

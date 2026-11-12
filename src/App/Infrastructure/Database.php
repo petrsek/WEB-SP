@@ -14,6 +14,7 @@ final class Database
         // Keep database failures visible instead of returning partial responses.
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $this->ensureRatingVisibilityColumn();
     }
 
     /** Creates a database connection from the container environment. */
@@ -33,5 +34,18 @@ final class Database
     public function connection(): PDO
     {
         return $this->pdo;
+    }
+
+    /** Adds rating visibility to databases created before moderation controls existed. */
+    private function ensureRatingVisibilityColumn(): void
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = "ratings" AND COLUMN_NAME = "is_visible"'
+        );
+        $statement->execute();
+        if ((int) $statement->fetchColumn() === 0) {
+            $this->pdo->exec('ALTER TABLE ratings ADD COLUMN is_visible TINYINT(1) NOT NULL DEFAULT 1 AFTER comment');
+        }
     }
 }

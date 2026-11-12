@@ -60,7 +60,7 @@ final class Rating
         // The unique key lets consumers edit their existing rating.
         $statement = $this->pdo->prepare(
             'INSERT INTO ratings (food_id, user_id, score, comment) VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE score = VALUES(score), comment = VALUES(comment), created_at = CURRENT_TIMESTAMP'
+             ON DUPLICATE KEY UPDATE score = VALUES(score), comment = VALUES(comment), is_visible = 1, created_at = CURRENT_TIMESTAMP'
         );
         $statement->execute([$foodId, $userId, $score, $comment]);
     }
@@ -77,6 +77,15 @@ final class Rating
     {
         $statement = $this->pdo->prepare('DELETE FROM ratings WHERE id = ? AND user_id = ?');
         $statement->execute([$id, $userId]);
+
+        return $statement->rowCount() > 0;
+    }
+
+    /** Changes whether a rating's text is visible to the public. */
+    public function setVisibility(int $id, bool $visible): bool
+    {
+        $statement = $this->pdo->prepare('UPDATE ratings SET is_visible = ? WHERE id = ?');
+        $statement->execute([$visible ? 1 : 0, $id]);
 
         return $statement->rowCount() > 0;
     }

@@ -58,6 +58,7 @@ CREATE TABLE `ratings` (
   `user_id` int(10) UNSIGNED NOT NULL,
   `score` tinyint(3) UNSIGNED NOT NULL,
   `comment` varchar(500) NOT NULL DEFAULT '',
+  `is_visible` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ;
 

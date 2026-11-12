@@ -7,11 +7,12 @@
         {% if showFood|default(false) %}<a class="fw-semibold text-decoration-none text-dark" href="?page=food&id={{ rating.food_id }}">{{ rating.food_name }}</a>{% else %}<strong>{{ rating.user_name }}</strong>{% endif %}
         <span class="rating">{{ rating.score }}/5</span>
       </div>
-      <p class="mb-0 mt-2 text-muted">{{ rating.comment ?: 'No comment.' }}</p>
+      {% if rating.is_visible == 1 %}<p class="mb-0 mt-2 text-muted">{{ rating.comment ?: 'No comment.' }}</p>{% else %}<p class="mb-0 mt-2 text-muted fst-italic">Text hidden by moderation.</p>{% endif %}
       {% if user and (user.id == rating.user_id or user.role in ['manager', 'admin', 'superadmin']) %}
         <div class="d-flex gap-2 mt-3">
           {% if user.id == rating.user_id %}<a class="btn btn-sm btn-outline-dark" href="?page=rating&food_id={{ rating.food_id }}">Edit</a>{% endif %}
-          <button class="btn btn-sm btn-outline-danger ajax-action" data-action="rating-delete" data-rating_id="{{ rating.id }}">Remove</button>
+          {% if user.role in ['manager', 'admin', 'superadmin'] %}<button class="btn btn-sm btn-outline-secondary ajax-action" data-action="rating-visibility" data-rating_id="{{ rating.id }}" data-visible="{{ rating.is_visible == 1 ? 0 : 1 }}" data-reload="page">{{ rating.is_visible == 1 ? 'Hide text' : 'Show text' }}</button>{% endif %}
+          {% if user.id == rating.user_id or user.role == 'superadmin' %}<button class="btn btn-sm btn-outline-danger ajax-action" data-action="rating-delete" data-rating_id="{{ rating.id }}">Remove</button>{% endif %}
         </div>
       {% endif %}
     </div>
