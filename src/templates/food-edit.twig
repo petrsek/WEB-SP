@@ -1,7 +1,64 @@
 {% extends "base.twig" %}
 {% block title %}{{ food ? 'Edit ' ~ food.name : 'Add food' }} | Flavour Town{% endblock %}
 {% block content %}
-<a href="{{ food ? '?page=food&id=' ~ food.id : './' }}" class="text-decoration-none text-muted">← {{ food ? 'Back to dish' : 'Back to menu' }}</a>
-<div class="row justify-content-center mt-4"><div class="col-lg-7"><div class="bg-white rounded-4 shadow-sm p-4 p-md-5"><div class="section-label">Menu management</div><h1>{{ food ? 'Edit menu item' : 'Add food' }}</h1><form class="ajax-form" data-action="food-save" enctype="multipart/form-data"><input type="hidden" name="food_id" value="{{ food.id ?? '' }}"><div class="mb-3"><label class="form-label">Name</label><input class="form-control" name="name" value="{{ food.name ?? '' }}" required></div><div class="mb-3"><label class="form-label">Description</label><div class="wysiwyg" data-description="{{ food.description ?? '' }}"></div><textarea class="d-none" name="description"></textarea></div><div class="row"><div class="col-md-7 mb-3"><label class="form-label">Category</label><input class="form-control" name="category" value="{{ food.category ?? '' }}" required></div><div class="col-md-5 mb-3"><label class="form-label">Price</label><input class="form-control" name="price" type="number" step=".01" min=".01" value="{{ food.price ?? '' }}" required></div></div><div class="mb-4"><label class="form-label">Picture{% if food %} (optional replacement){% endif %}</label><input class="form-control" name="image" type="file" accept="image/jpeg,image/png,image/gif,image/webp"></div><button class="btn btn-primary">{{ food ? 'Save changes' : 'Add food' }}</button></form></div></div></div>
+<a href="{{ food ? '?page=food&id=' ~ food.id : './' }}" class="text-decoration-none text-muted">
+  ← {{ food ? 'Back to dish' : 'Back to menu' }}
+</a>
+<div class="row justify-content-center mt-4">
+  <div class="col-lg-7">
+    <div class="bg-white rounded-4 shadow-sm p-4 p-md-5">
+      <div class="section-label">Menu management</div>
+      <h1>{{ food ? 'Edit menu item' : 'Add food' }}</h1>
+      <form class="ajax-form" data-action="food-save" enctype="multipart/form-data">
+        <input type="hidden" name="food_id" value="{{ food.id ?? '' }}">
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input class="form-control" name="name" value="{{ food.name ?? '' }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <div class="wysiwyg" data-description="{{ food.description ?? '' }}"></div>
+          <textarea class="d-none" name="description"></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-7 mb-3">
+            <label class="form-label">Category</label>
+            <input class="form-control" name="category" value="{{ food.category ?? '' }}" required>
+          </div>
+          <div class="col-md-5 mb-3">
+            <label class="form-label">Price</label>
+            <input class="form-control" name="price" type="number" step=".01" min=".01" value="{{ food.price ?? '' }}" required>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Picture{% if food %} (optional replacement){% endif %}</label>
+          <input class="form-control" name="image" type="file" accept="image/jpeg,image/png,image/gif,image/webp">
+        </div>
+        <button class="btn btn-primary">{{ food ? 'Save changes' : 'Add food' }}</button>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
-{% block scripts %}<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script><script>document.querySelectorAll('.wysiwyg').forEach(editorElement => { const form = editorElement.closest('form'); const editor = new Quill(editorElement, {theme:'snow', modules:{toolbar:[['bold','italic','underline'],[{header:[1,2,3,false]}],[{list:'ordered'},{list:'bullet'}],['blockquote'],['clean']]}}); editor.root.innerHTML = editorElement.dataset.description || ''; form.editor = {get value() { return editor.root.innerHTML; }}; });</script>{% endblock %}
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+  <script>
+    document.querySelectorAll('.wysiwyg').forEach(editorElement => {
+      const form = editorElement.closest('form');
+      const editor = new Quill(editorElement, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline'],
+            [{header: [1, 2, 3, false]}],
+            [{list: 'ordered'}, {list: 'bullet'}],
+            ['blockquote'],
+            ['clean'],
+          ],
+        },
+      });
+      editor.root.innerHTML = editorElement.dataset.description || '';
+      form.editor = {get value() { return editor.root.innerHTML; }};
+    });
+  </script>
+{% endblock %}

@@ -1,18 +1,36 @@
 <section>
   <div class="section-label">{{ title|default('Ratings') }}</div>
-  {% if title|default('') != 'Ratings' %}<h2 class="mb-4">Ratings</h2>{% endif %}
+  {% if title|default('') != 'Ratings' %}
+    <h2 class="mb-4">Ratings</h2>
+  {% endif %}
   {% for rating in ratings %}
     <div class="bg-white rounded-3 p-3 mb-3 shadow-sm">
       <div class="d-flex justify-content-between">
-        {% if showFood|default(false) %}<a class="fw-semibold text-decoration-none text-dark" href="?page=food&id={{ rating.food_id }}">{{ rating.food_name }}</a>{% else %}<strong>{{ rating.user_name }}</strong>{% endif %}
-        <span class="rating" aria-label="{{ rating.score }} out of 5 stars">{% for star in 1..5 %}{{ rating.score >= star ? '★' : '☆' }}{% endfor %} {{ rating.score }}/5</span>
+        {% if showFood|default(false) %}
+          <a class="fw-semibold text-decoration-none text-dark" href="?page=food&id={{ rating.food_id }}">{{ rating.food_name }}</a>
+        {% else %}
+          <strong>{{ rating.user_name }}</strong>
+        {% endif %}
+        <span class="rating" aria-label="{{ rating.score }} out of 5 stars">
+          {% for star in 1..5 %}{{ rating.score >= star ? '★' : '☆' }}{% endfor %} {{ rating.score }}/5
+        </span>
       </div>
-      {% if rating.is_visible == 1 %}<p class="mb-0 mt-2 text-muted">{{ rating.comment ?: 'No comment.' }}</p>{% else %}<p class="mb-0 mt-2 text-muted fst-italic">Text hidden by moderation.</p>{% endif %}
+      {% if rating.is_visible == 1 %}
+        <p class="mb-0 mt-2 text-muted">{{ rating.comment ?: 'No comment.' }}</p>
+      {% else %}
+        <p class="mb-0 mt-2 text-muted fst-italic">Text hidden by moderation.</p>
+      {% endif %}
       {% if user and (user.id == rating.user_id or user.role in ['manager', 'admin', 'superadmin']) %}
         <div class="d-flex gap-2 mt-3">
-          {% if user.id == rating.user_id %}<a class="btn btn-sm btn-outline-dark" href="?page=rating&food_id={{ rating.food_id }}">Edit</a>{% endif %}
-          {% if user.role in ['manager', 'admin', 'superadmin'] %}<button class="btn btn-sm btn-outline-secondary ajax-action" data-action="rating-visibility" data-rating_id="{{ rating.id }}" data-visible="{{ rating.is_visible == 1 ? 0 : 1 }}" data-reload="page">{{ rating.is_visible == 1 ? 'Hide text' : 'Show text' }}</button>{% endif %}
-          {% if user.id == rating.user_id or user.role == 'superadmin' %}<button class="btn btn-sm btn-outline-danger ajax-action" data-action="rating-delete" data-rating_id="{{ rating.id }}">Remove</button>{% endif %}
+          {% if user.id == rating.user_id %}
+            <a class="btn btn-sm btn-outline-dark" href="?page=rating&food_id={{ rating.food_id }}">Edit</a>
+          {% endif %}
+          {% if user.role in ['manager', 'admin', 'superadmin'] %}
+            <button class="btn btn-sm btn-outline-secondary ajax-action" data-action="rating-visibility" data-rating_id="{{ rating.id }}" data-visible="{{ rating.is_visible == 1 ? 0 : 1 }}" data-reload="page">{{ rating.is_visible == 1 ? 'Hide text' : 'Show text' }}</button>
+          {% endif %}
+          {% if user.id == rating.user_id or user.role == 'superadmin' %}
+            <button class="btn btn-sm btn-outline-danger ajax-action" data-action="rating-delete" data-rating_id="{{ rating.id }}">Remove</button>
+          {% endif %}
         </div>
       {% endif %}
     </div>

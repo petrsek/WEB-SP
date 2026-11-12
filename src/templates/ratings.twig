@@ -3,5 +3,10 @@
 {% block content %}
 <a href="./" class="text-decoration-none text-muted">← Back to menu</a>
 <h1 class="mt-4 mb-4">My ratings</h1>
-{% include 'rating-list.twig' with {title: 'Your feedback', ratings: ratings, showFood: true, emptyMessage: 'You have not rated any dishes yet.'} %}
+{% include 'rating-list.twig' with {
+  title: 'Your feedback',
+  ratings: ratings,
+  showFood: true,
+  emptyMessage: 'You have not rated any dishes yet.'
+} %}
 {% endblock %}
