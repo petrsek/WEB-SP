@@ -13,5 +13,5 @@ RUN mkdir -p /var/lib/flavour-town/uploads && chown -R www-data:www-data /var/li
 COPY --from=deps app/vendor/ /var/www/html/vendor
 COPY ./src /var/www/html
 COPY default-images/ /var/lib/flavour-town/uploads/
-RUN chown -R www-data:www-data /var/lib/flavour-town/uploads
 USER www-data
+RUN chown -R www-data:www-data /var/lib/flavour-town/uploads
