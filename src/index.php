@@ -17,7 +17,7 @@ session_start();
 
 if (isset($_GET['image'])) {
     $filename = (string) $_GET['image'];
-    if (!preg_match('/^[a-f0-9]{32}\.(jpg|png|gif|webp)$/', $filename)) {
+    if (!preg_match('/^(?:default\.png|[a-f0-9]{32}\.(jpg|png|gif|webp))$/', $filename)) {
         http_response_code(404);
         exit;
     }
