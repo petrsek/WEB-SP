@@ -1,4 +1,5 @@
 # Flavour Town
+*Petr Halbich, peta.halbich@gmail.com, 12.11.2026, KIV/WEB*
 
 Flavour Town is a PHP/Twig restaurant menu and food-rating web application. It uses
 Bootstrap for the responsive UI, MariaDB for persistence, and `fetch()` AJAX
@@ -11,9 +12,9 @@ create db/password.txt file, which must contain only the password for the databa
 ```bash
 docker compose up --build
 ```
+Open [http://localhost:8080](http://localhost:8080) and import db/default-export/web-sp.sql into web-sp
 
-Open [http://localhost](http://localhost). The database schema and sample menu
-are created automatically on the first request.
+Open [http://localhost](http://localhost).
 
 ## Demo accounts
 
@@ -23,7 +24,10 @@ All demo accounts use the password shown below:
 | --- | --- | --- |
 | Superadmin | superadmin@flavourtown.test | superadmin |
 | Admin | admin@flavourtown.test | adminadmin |
+| Admin2 | admin2@flavourtown.test | admin2 |
 | Manager | manager@flavourtown.test | manager |
+| Consumer | consumer@flavourtown.test | consumer |
+| Consumer2 | consumer2@flavourtown.test | consumer2 |
 
 Visitors can register as Consumers. Consumers can submit one editable rating
 per dish; Managers and Admins can add, edit, remove dishes and moderate
