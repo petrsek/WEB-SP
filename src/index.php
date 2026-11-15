@@ -15,6 +15,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 session_start();
 
+// Display image
 if (isset($_GET['image'])) {
     $filename = (string) $_GET['image'];
     if (!preg_match('/^(?:default\.png|[a-f0-9]{32}\.(jpg|png|gif|webp))$/', $filename)) {
