@@ -4,6 +4,7 @@ services:
       context: .
     ports:
       - 127.0.0.1:80:80
+      - 172.20.10.10:80:80 # private ip for lan access, change according to current settings
     depends_on:
       db:
         condition: service_healthy
