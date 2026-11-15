@@ -5,7 +5,7 @@ namespace App\Infrastructure;
 
 use PDO;
 
-/** Owns the PDO connection, schema creation, and initial data setup. */
+/** Owns the PDO connection */
 final class Database
 {
     /** Configures the injected PDO connection and prepares application data. */
